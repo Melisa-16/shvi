@@ -17,9 +17,10 @@ function generatePCM(frequency, duration) {
 
   for (let n = 0; n < number; n++) {
     const smth = Amplitude *
-      Math.sin(2 * Math.pi * frequency * (n / sampleRate));
+      Math.sin(2 * Math.PI * frequency * (n / sampleRate));
     samples.push(smth);
   }
+
   return samples;
 }
 
