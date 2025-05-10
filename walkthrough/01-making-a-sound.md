@@ -9,7 +9,6 @@ tone 261.63 1000
 > *Note, that the duration is specified in milliseconds.*
 
 To do this we have to take care of these two things: 1) make Shvi understand the code and 2) encode it in a wave file. It is now so, that we make the computer go "beep" first, since parsing the code and evaluating it is equally interesting but slightly less interactive.
-
 Sound can be thought of as a wave. It is a vibration that travels through the air (or any other medium) and can be heard when it reaches the ear. It can be represented as a sinusoid and described by its frequency and amplitude. The frequency is the number of cycles per second, and the amplitude is the height of the wave. The higher the frequency, the higher the pitch of the sound. The higher the amplitude, the louder the sound.
 
 To describe and replay the sound with a computer, we can quantize the wave that produces it into a series of samples. Each sample is a number that represents the amplitude of the wave at a given point in time. The more samples we have, the more accurate the representation of the sound.
