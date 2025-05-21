@@ -7,9 +7,14 @@ Deno.test("Recursion", async (t) => {
       // If n is 0, return 0
       // If n is 1, return 1
       // Otherwise, return the sum of the previous two Fibonacci numbers
-
       const fibonacci = (n) => {
-        throw new Error("Not implemented");
+        if (n == 0) {
+          return 0;
+        } else if (n == 1) {
+          return 1;
+        } else {
+          return fibonacci(n - 1) + fibonacci(n - 2);
+        }
       };
 
       const generalResult = fibonacci(5);
@@ -37,11 +42,14 @@ Deno.test("Recursion", async (t) => {
           if (str.length === 0) {
             return acc;
           }
+
           const [first, ...rest] = str;
 
-          fail(
-            "You need to implement the logic to reverse the capitalization",
-          );
+          if (first == first.toUpperCase()) {
+            return loop(rest, acc + first.toLowerCase());
+          } else {
+            return loop(rest, acc + first.toUpperCase());
+          }
         };
 
         return loop(str, "");
