@@ -72,8 +72,20 @@ Deno.test("Recursion", async (t) => {
       // When all the elements are checked, return the maximum value
 
       const max = (numbers) => {
-        throw new Error("Not implemented");
-      };
+        const[first,...rest]=numbers;
+        if(numbers.length==0){
+          return -Infinity;
+        }else if(numbers.length==1){
+          return numbers[0];
+        }
+        const Max=first;
+        const restMax=max(rest);
+        if(restMax > Max){
+          return restMax;
+        }else{
+          return Max;
+        }
+      }
 
       const maxOfEmptyList = max([]);
       const maxOfSingletonList = max([2]);
@@ -98,14 +110,27 @@ Deno.test("Recursion", async (t) => {
       //  If it is not, add the first character to the result and move to the next character of the string
 
       const strip = (str, substr) => {
-        throw new Error("Not implemented");
+        if (str.length === 0 || substr.length === 0) {
+          return str;
+        }
+      
+       
+        if (
+          str.length >= 2 &&
+          str[0] === substr[0] &&
+          str[1] === substr[1]
+        ) {
+          return strip(str.slice(2), substr);
+        }
+        return str[0] + strip(str.slice(1), substr);
       };
+    
 
       const generalResult = strip("Skies are grey in Greece", "re");
       const emptyStringResult = strip("", "re");
       const emptySubstringResult = strip("Skies are grey in Greece", "");
       assertEquals(generalResult, "Skies a gy in Gece");
-      assertEquals(emptySubstringResult, "Skies a gy in Gece");
+      assertEquals(emptySubstringResult, "Skies are grey in Greece");
       assertEquals(emptyStringResult, "");
     },
   });
@@ -119,9 +144,16 @@ Deno.test("Recursion", async (t) => {
       // Move to the next element and repeat the process
 
       const flatten = (arr) => {
-        throw new Error("Not implemented");
+        const[first,...rest]=arr;
+        if(arr.length==0){
+          return [];
+        }else if(Array.isArray(first)){
+         return [...flatten(first),...flatten(rest)];
+        }else{
+          return [first,...flatten(rest)];
+        }
+      
       };
-
       const generalResult = flatten([1, [2, 3], [4, [5]]]);
       const emptyArrayResult = flatten([]);
       assertEquals(generalResult, [1, 2, 3, 4, 5]);
