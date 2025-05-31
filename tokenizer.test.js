@@ -60,11 +60,13 @@ Deno.test("Tokenizer", async (t) => {
   await t.step({
     name: "tokenize a nested list",
     fn: () => {
-      const result = tokenize("((a (f t)) (b))");
-      assertEquals(result, [[
-        [atom("a"), [atom("f"), atom("t")]],
-        [atom("b")],
-      ]]);
+     const input = "(+ 1 (* 2 3))";
+     const expected=[[
+      atom("+"),
+      1,
+      [atom("*"),2,3],
+     ]];
+     assertEquals(tokenize(input),expected);
     },
   });
 });

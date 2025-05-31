@@ -71,8 +71,8 @@ async function encodeWAV(
 }
 
 const typeify = (token) => {
-  const parsedNumber = Number.parseFloat(token, 10);
-  return Number.isNaN(parsedNumber) ? Symbol.for(token) : parsedNumber;
+  const num = Number(token);
+  return isNaN(num) ? Symbol.for(token) : num;
 };
 
 const atom = (name) => Symbol.for(name);
@@ -85,90 +85,66 @@ const tokenize = (input) => {
     [graphemeAtHand, ...restOfGraphemes],
     tokenSoFar = "",
   ) => {
-    const [currentScope, parentScope, ...outerScopes] = progressiveScope;
+    const top = progressiveScope[progressiveScope.length - 1];
 
-    if (!graphemeAtHand) {
-      return tokenSoFar.length > 0
-        ? [...currentScope, typeify(tokenSoFar)]
-        : currentScope;
+    if (graphemeAtHand === undefined) {
+      if (tokenSoFar !== "") {
+        top.push(typeify(tokenSoFar));
+      }
+      return progressiveScope[0];
     }
 
-    switch (graphemeAtHand) {
-      case "(": {
-        const updatedCurrentScope = tokenSoFar.length > 0
-          ? [...currentScope, typeify(tokenSoFar)]
-          : currentScope;
-
-        const newProgressiveScope = parentScope
-          ? [[], updatedCurrentScope, parentScope, ...outerScopes]
-          : [[], updatedCurrentScope, ...outerScopes];
-
-        return loop(
-          newProgressiveScope,
-          restOfGraphemes,
-        );
+    if (graphemeAtHand === " ") {
+      if (tokenSoFar !== "") {
+        top.push(typeify(tokenSoFar));
       }
-      case ")": {
-        const updatedCurrentScope = tokenSoFar.length > 0
-          ? [...currentScope, typeify(tokenSoFar)]
-          : currentScope;
-
-        const innerHead = parentScope
-          ? [...parentScope, updatedCurrentScope]
-          : updatedCurrentScope;
-
-        const newProgressiveScope = [
-          innerHead,
-          ...outerScopes,
-        ];
-
-        return loop(newProgressiveScope, restOfGraphemes, "");
-      }
-      case " ": {
-        const updatedCurrentScope = tokenSoFar.length > 0
-          ? [...currentScope, typeify(tokenSoFar)]
-          : currentScope;
-
-        const newProgressiveScope = [
-          updatedCurrentScope,
-          parentScope,
-          ...outerScopes,
-        ];
-
-        return loop(
-          newProgressiveScope,
-          restOfGraphemes,
-        );
-      }
-      default:
-        return loop(
-          progressiveScope,
-          restOfGraphemes,
-          tokenSoFar + graphemeAtHand,
-        );
+      return loop(progressiveScope, restOfGraphemes, "");
     }
+
+    if (graphemeAtHand === "(") {
+      const newList = [];
+      progressiveScope.push(newList);
+      return loop(progressiveScope, restOfGraphemes, "");
+    }
+
+    if (graphemeAtHand === ")") {
+      if (tokenSoFar !== "") {
+        top.push(typeify(tokenSoFar));
+      }
+      const completedList = progressiveScope.pop();
+      progressiveScope[progressiveScope.length - 1].push(completedList);
+      return loop(progressiveScope, restOfGraphemes, "");
+    }
+
+   
+    return loop(progressiveScope, restOfGraphemes, tokenSoFar + graphemeAtHand);
   };
 
   return loop([[]], graphemes);
 };
+
+
 
 const evaluate = (expression) => {
   if (typeof expression === "number") {
     return expression;
   }
 
+  if (typeof expression === "number") {
+    return expression;
+  }
+  
   if (Array.isArray(expression)) {
-    const [operator, ...operands] = expression;
 
-    switch (operator) {
-      case atom("tone"):
-        return generatePCM(...operands);
-      case atom("sequence"):
-        return sequence(...operands);
-      default:
-        throw new Error(
-          `🪈 Error: Unknown operator ....... \`${Symbol.keyFor(operator)}\``,
-        );
+    const [first, ...rest] = expression;
+
+    if (typeof first === "symbol" && Symbol.keyFor(first)=== "tone"){
+      const [frequancy,duration]=rest;
+      return generatePCM(frequancy,duration);
+    }else{
+      const name=typeof first=== "symbol" ? Symbol.keyFor(first) || first.toString():String(first);
+      throw new Error("Unknown function:"+name);
     }
+
   }
 };

@@ -7,15 +7,14 @@ Deno.test("Recursion", async (t) => {
       // If n is 0, return 0
       // If n is 1, return 1
       // Otherwise, return the sum of the previous two Fibonacci numbers
-
       const fibonacci = (n) => {
-        if (n === 0) {
+        if (n == 0) {
           return 0;
-        }
-        if (n === 1) {
+        } else if (n == 1) {
           return 1;
+        } else {
+          return fibonacci(n - 1) + fibonacci(n - 2);
         }
-        return fibonacci(n - 1) + fibonacci(n - 2);
       };
 
       const generalResult = fibonacci(5);
@@ -43,13 +42,14 @@ Deno.test("Recursion", async (t) => {
           if (str.length === 0) {
             return acc;
           }
+
           const [first, ...rest] = str;
 
-          const newChar = first === first.toUpperCase()
-            ? first.toLowerCase()
-            : first.toUpperCase();
-          const newAcc = acc + newChar;
-          return loop(rest, newAcc);
+          if (first == first.toUpperCase()) {
+            return loop(rest, acc + first.toLowerCase());
+          } else {
+            return loop(rest, acc + first.toUpperCase());
+          }
         };
 
         return loop(str, "");
@@ -72,18 +72,19 @@ Deno.test("Recursion", async (t) => {
       // When all the elements are checked, return the maximum value
 
       const max = (numbers) => {
-        if (numbers.length === 0) {
+        const [first, ...rest] = numbers;
+        if (numbers.length == 0) {
           return -Infinity;
+        } else if (numbers.length == 1) {
+          return numbers[0];
         }
-        const loop = (numbers, currentMax) => {
-          if (numbers.length === 0) {
-            return currentMax;
-          }
-          const [first, ...rest] = numbers;
-          const newMax = first > currentMax ? first : currentMax;
-          return loop(rest, newMax);
-        };
-        return loop(numbers.slice(1), numbers[0]);
+        const Max = first;
+        const restMax = max(rest);
+        if (restMax > Max) {
+          return restMax;
+        } else {
+          return Max;
+        }
       };
 
       const maxOfEmptyList = max([]);
@@ -113,18 +114,14 @@ Deno.test("Recursion", async (t) => {
           return str;
         }
 
-        const loop = (str, acc) => {
-          if (str.length === 0) {
-            return acc;
-          }
-
-          if (str.startsWith(substr)) {
-            return loop(str.slice(substr.length), acc);
-          } else {
-            return loop(str.slice(1), acc + str[0]);
-          }
-        };
-        return loop(str, "");
+        if (
+          str.length >= 2 &&
+          str[0] === substr[0] &&
+          str[1] === substr[1]
+        ) {
+          return strip(str.slice(2), substr);
+        }
+        return str[0] + strip(str.slice(1), substr);
       };
 
       const generalResult = strip("Skies are grey in Greece", "re");
@@ -145,24 +142,15 @@ Deno.test("Recursion", async (t) => {
       // Move to the next element and repeat the process
 
       const flatten = (arr) => {
-        if (arr.length === 0) {
+        const [first, ...rest] = arr;
+        if (arr.length == 0) {
           return [];
+        } else if (Array.isArray(first)) {
+          return [...flatten(first), ...flatten(rest)];
+        } else {
+          return [first, ...flatten(rest)];
         }
-        const loop = (arr, acc) => {
-          if (arr.length === 0) {
-            return acc;
-          }
-          const [first, ...rest] = arr;
-
-          if (Array.isArray(first)) {
-            return loop(first.concat(rest), acc);
-          } else {
-            return loop(rest, acc.concat(first));
-          }
-        };
-        return loop(arr, []);
       };
-
       const generalResult = flatten([1, [2, 3], [4, [5]]]);
       const emptyArrayResult = flatten([]);
       assertEquals(generalResult, [1, 2, 3, 4, 5]);
