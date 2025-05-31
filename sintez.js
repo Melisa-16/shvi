@@ -67,7 +67,8 @@ async function encodeWAV(
 const atom = (name) => Symbol.for(name);
 
 const typeify = (token) => {
-  throw new Error("Not implemented");
+  const num = Number(token);
+  return isNaN(num) ? Symbol.for(token) : num;
 };
 
 const tokenize = (input) => {
@@ -78,11 +79,45 @@ const tokenize = (input) => {
     [graphemeAtHand, ...restOfGraphemes],
     tokenSoFar = "",
   ) => {
-    throw new Error("Not implemented");
+    const top = progressiveScope[progressiveScope.length - 1];
+
+    if (graphemeAtHand === undefined) {
+      if (tokenSoFar !== "") {
+        top.push(typeify(tokenSoFar));
+      }
+      return progressiveScope[0];
+    }
+
+    if (graphemeAtHand === " ") {
+      if (tokenSoFar !== "") {
+        top.push(typeify(tokenSoFar));
+      }
+      return loop(progressiveScope, restOfGraphemes, "");
+    }
+
+    if (graphemeAtHand === "(") {
+      const newList = [];
+      progressiveScope.push(newList);
+      return loop(progressiveScope, restOfGraphemes, "");
+    }
+
+    if (graphemeAtHand === ")") {
+      if (tokenSoFar !== "") {
+        top.push(typeify(tokenSoFar));
+      }
+      const completedList = progressiveScope.pop();
+      progressiveScope[progressiveScope.length - 1].push(completedList);
+      return loop(progressiveScope, restOfGraphemes, "");
+    }
+
+   
+    return loop(progressiveScope, restOfGraphemes, tokenSoFar + graphemeAtHand);
   };
 
   return loop([[]], graphemes);
 };
+
+
 
 const evaluate = (expression) => {
   // If the expression is a number, return it
@@ -90,5 +125,21 @@ const evaluate = (expression) => {
   //   assume the first element is a function and the rest are arguments
   //   evaluate the function with the arguments
 
-  throw new Error("Not implemented");
+  if (typeof expression === "number") {
+    return expression;
+  }
+  
+  if (Array.isArray(expression)) {
+
+    const [first, ...rest] = expression;
+
+    if (typeof first === "symbol" && Symbol.keyFor(first)=== "tone"){
+      const [frequancy,duration]=rest;
+      return generatePCM(frequancy,duration);
+    }else{
+      const name=typeof first=== "symbol" ? Symbol.keyFor(first) || first.toString():String(first);
+      throw new Error("Unknown function:"+name);
+    }
+
+  }
 };
